@@ -6,9 +6,15 @@
 struct NeuralNetwork {
     double[][] layers;
     double[][] weights;
-    double[][] bias;
+    double[][] biases;
+	double[][] deltas;
 	int layerNumber;
 	int[] layerLength[];
+}
+
+struct Dataset {
+    int[][] inputs;
+	int datasetLength;
 }
 
 double[][] MultiplyMatrix(double[][] m1, double[][] m2, int lenRow, int lenColumn)
@@ -34,7 +40,7 @@ double[][] MultiplyMatrix(double[][] m1, double[][] m2, int lenRow, int lenColum
 // 26: [a-z]
  
 // Init Network
-struct NeuralNetwork InitNetwork(int layerNumber, int[] layerLength)
+NeuralNetwork InitNetwork(int layerNumber, int[] layerLength)
 {
 	int maxLength = 0, n;
 	for(n = 0; n < layerNumber; n++)
@@ -46,8 +52,8 @@ struct NeuralNetwork InitNetwork(int layerNumber, int[] layerLength)
 	}
 	
     double layers[layerNumber][maxLength];
-    double weightss[layerNumber-1][maxLength];
-    double bias[layerNumber-1][maxLength];
+    double weights[layerNumber-1][maxLength];
+    double biases[layerNumber-1][maxLength];
 	
     int w, h;
     for(h = 0; h < layerNumber; h++)
@@ -55,21 +61,42 @@ struct NeuralNetwork InitNetwork(int layerNumber, int[] layerLength)
         for(w = 0; w < layerNumber; w++)
         {
             weights[h][w] = 0;
-            bias[h][w] = 0;
+            biases[h][w] = 0;
         }
     }
 
-    NeuralNetwork NN = { layers, weights, bias, layerNumber, layerLength}
+    NeuralNetwork NN = { layers, weights, biases, layerNumber, layerLength}
 
     return NN;
 }
 
 // Train
+NeuralNetwork Train(NeuralNetwork NN, Dataset dataset)
+{
+	int epoch = 100, inputIndex, iteration;
+	double learningRate = 0.01;
+	
+	// Load from JSON
+	
+	NeuralNetwork NN_ = NN;
+	for(iteration = 0; iteration < epoch; iteration++){
+		for(inputIndex = 0; inputIndex < dataset.datasetLength; inputIndex++)
+		{
+			NN_ = Input(NN_, dataset.inputs[inputIndex]);
+			NN_ = Forward(NN_, Sigmoid);
+			NN_ = Backward(NN_);
+			NN_ = UpdateWeights(NN_, learningRate);
+		}
+	}
+	
+    return NN_;
+}
+
 
 // Run
-struct NeuralNetwork Run(struct NN, int[] input)
+NeuralNetwork Run(NeuralNetwork NN, int[] input)
 {
-	struct NN_ = NN;
+	NeuralNetwork NN_ = NN;
 	NN_ = Input(NN_, input);
 	NN_ = Forward(NN_, Sigmoid);
 	
@@ -78,9 +105,9 @@ struct NeuralNetwork Run(struct NN, int[] input)
 
 
 // Input
-struct NeuralNetwork Input(struct NN, int[] input)
+NeuralNetwork Input(NeuralNetwork NN, int[] input)
 {
-	struct NN_ = NN;
+	NeuralNetwork NN_ = NN;
 	int i, layerLength = NN_.layerLength[0];
 	
 	for(i = 1; i < layerLength; i++)
@@ -92,32 +119,96 @@ struct NeuralNetwork Input(struct NN, int[] input)
 }
 
 // Output
-char Output(struct NN)
+char Output(NeuralNetwork NN)
 {
 	char y_ = argmax(NN.layers[NN.layerNumber-1], NN.layerLength[NN.layerNumber-1]);
     return y_;
 }
 
 // BackPropagation
+NeuralNetwork Backward(NeuralNetwork NN)
+{
+	int i, j;
+	
+	for(i = layerNumber-1; i >= 0; i--)
+	{
+		double [NN.layerLength[NN.layerNumber]] errors;
+		if(i != layerNumber-1)
+		{
+			for(j = 0; j < layerLength[i]; j++)
+			{
+				double error = 0;
+				for(k = 0; k < layerLength[i+1]; k++)
+				{
+					error += NN.weights[i][j] * NN.deltas[i+1][k];
+				}
+				errors[j] = error;
+			}
+		}
+		else // if beginning backprop (on ouput)
+		{
+			for(j = 0; j < layerLength[i]; j++)
+			{
+				errors[j] = NN.expected[j] - NN.layers[i][j];
+			}
+		}
+		
+		for(j = 0; j < layerLength[i]; j++)
+		{
+			deltas[i][j] = errors[j] * TransfertDerivative(NN.layers[i][j]);
+		}
+	}
+}
 
-
-//////////////
-
-struct NeuralNetwork Updateweightss(network, row, l_rate):
+NeuralNetwork UpdateWeights(NeuralNetwork NN, learningRate)
+{
+	int i, j, inputsLength;
+	double[] inputs;
+	
+	for(i = 0; i < layerNumber; i++)
+	{
+		for(j = 0; j < layerLength[NN.layerNumber]; j++)
+		{
+			if(i == 0){
+				inputs = layers[0][j];
+				inputsLength = 1;
+			}else{			
+				inputs = layers[i - 1];
+				inputsLength = layerLength[i - 1];
+			}
+			
+			for(k = 0; k < inputsLength; k++)
+			{
+				NN.weights[i][j] += NN.learningRate * NN.deltas[i][j] * inputs[k];
+			}
+			NN.biases[i][j] += NN.learningRate * NN.deltas[i][j];
+		}
+	}
+	
+	
 	for i in range(len(network)):
 		inputs = row[:-1]
 		if i != 0:
 			inputs = [neuron['output'] for neuron in network[i - 1]]
 		for neuron in network[i]:
 			for j in range(len(inputs)):
-				neuron['weightss'][j] += l_rate * neuron['delta'] * inputs[j]
-			neuron['weightss'][-1] += l_rate * neuron['delta']
+				neuron['weights'][j] += l_rate * neuron['delta'] * inputs[j]
+			neuron['weights'][-1] += l_rate * neuron['delta']
+			
+	return NN;
+}
 
 
-double Error(double output, double desired):
+double Error(double output, double desired)
+{
 	return (1/2) * pow((desired - output), 2);
+}
 	
-int DesiredOutputs(char y, int outputLength){
+double TransfertDerivative(double output):
+	return output * (1.0 - output);
+	
+int DesiredOutputs(char y, int outputLength)
+{
 	int y_ = y;
 	y_ -= 97;
 	
@@ -151,9 +242,9 @@ int Argmax(int[] output, outputLength)
 }
 
 // Forward Propagation
-struct NeuralNetwork Forward(struct NN, double (*activation)(double))
+NeuralNetwork Forward(NeuralNetwork NN, double (*activation)(double))
 {
-	struct NN_ = NN;
+	NeuralNetwork NN_ = NN;
 	int i, j, k;
 	double y = 0;
 	
@@ -166,7 +257,7 @@ struct NeuralNetwork Forward(struct NN, double (*activation)(double))
 			{
 				y += (NN_.layers[i-1][k] * NN_.weights[i][k])
 			}
-			y += NN_.bias[i][j]
+			y += NN_.biases[i][j]
 			y = (*activation)(y)
 			NN_.layers[i][j] = y;
 		}
