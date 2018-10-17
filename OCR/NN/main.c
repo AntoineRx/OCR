@@ -28,6 +28,13 @@ int main ()
 	return 0;
 }
 
+double RandomFrom(double min, double max) 
+{
+    double range = (max - min); 
+    double div = RAND_MAX / range;
+    return min + (rand() / div);
+}
+
 
 // (3, [256, 128, 26])
 // 26: [a-z]
@@ -44,21 +51,25 @@ struct NeuralNetwork InitNetwork(int layerNumber, int layerLength[])
 		}
 	}
 
-    double layers[layerNumber][maxLength];
-    double weights[layerNumber-1][maxLength];
-    double biases[layerNumber-1][maxLength];
+    //double layers[layerNumber][maxLength];
+    //double weights[layerNumber-1][maxLength];
+    //double biases[layerNumber-1][maxLength];
+	
+	NeuralNetwork NN;
+	
 
+	
     int w, h;
-    for(h = 0; h < layerNumber; h++)
+    for(h = 0; h < NN.layerNumber; h++)
     {
-        for(w = 0; w < layerNumber; w++)
+        for(w = 0; w < NN.layerNumber; w++)
         {
-            weights[h][w] = 0;
-            biases[h][w] = 0;
+            NN.weights[h][w] = RandomFrom(-0.5, 0.5);
+            NN.biases[h][w] = RandomFrom(-0.5 0.5);
         }
     }
 
-    NeuralNetwork NN = { layers, weights, biases, layerNumber, layerLength}
+    //NeuralNetwork NN; = { layers, weights, biases, layerNumber, layerLength}
 
     return NN;
 }
