@@ -183,7 +183,6 @@ struct NeuralNetwork Backward(struct NeuralNetwork NN, double output[])
 	}
 	return NN;
 }
-//ADELE C EST TROP LA MEILLEURE D ABORDP OH YEAAAH HI HA 
 
 		
 
