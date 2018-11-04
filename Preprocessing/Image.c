@@ -4,9 +4,6 @@ struct Image {
 	int pixels[][];
 };
 
-struct Image *img = malloc(sizeof(*img) + sizeof(int[height][width]));
-
-
 
 Image* Image_create (size_t height, size_t width)
 {
