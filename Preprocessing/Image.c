@@ -1,6 +1,6 @@
 struct Image {
-	int width;
-	int height;
+	size_t width;
+	size_t height;
 	int pixels[][];
 };
 
@@ -22,20 +22,20 @@ void Image_destroy (Image* img)
 
 void Image_fill (Image* img)
 {
-  int (*array_2D)[img->width] = (double(*)[img->width]) img->values;
+  int (*array_2D)[img->width] = (int(*)[img->width]) img->values;
 
   for(size_t height=0; height < img->height; height++)
   {
     for(size_t width=0; width < img->width; width++)
     {
-      array_2D[height][width] = (double)width; // whatever value that makes sense
+      array_2D[height][width] = (int)width; // whatever value that makes sense
     }
   }
 }
 
 void Image_print (const Image* img)
 {
-  int (*array_2D)[img->width] = (double(*)[img->width]) img->values;
+  int (*array_2D)[img->width] = (int(*)[img->width]) img->values;
 
   for(size_t height=0; height < img->height; height++)
   {
