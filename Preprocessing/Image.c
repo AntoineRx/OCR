@@ -1,7 +1,7 @@
 typedef struct {
 	size_t width;
 	size_t height;
-	int pixels[][];
+	int pixels[];
 } Image;
 
 
