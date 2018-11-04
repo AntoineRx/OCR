@@ -1,6 +1,6 @@
 struct Image {
 	int width;
-	int hieght;
+	int height;
 	int pixels[][];
 };
 
