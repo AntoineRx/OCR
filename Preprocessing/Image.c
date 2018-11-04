@@ -8,7 +8,7 @@ struct Image {
 Image* Image_create (size_t height, size_t width)
 {
   // using calloc since it conveniently fills everything with zeroes
-  Image* img = calloc(1, sizeof *img + sizeof(double[height][width]) );
+  Image* img = calloc(1, sizeof *img + sizeof(int[height][width]) );
   img->height = height;
   img->width = width;
   // ...
@@ -22,7 +22,7 @@ void Image_destroy (Image* img)
 
 void Image_fill (Image* img)
 {
-  double (*array_2D)[img->width] = (double(*)[img->width]) img->values;
+  int (*array_2D)[img->width] = (double(*)[img->width]) img->values;
 
   for(size_t height=0; height < img->height; height++)
   {
@@ -35,7 +35,7 @@ void Image_fill (Image* img)
 
 void Image_print (const Image* img)
 {
-  double (*array_2D)[img->width] = (double(*)[img->width]) img->values;
+  int (*array_2D)[img->width] = (double(*)[img->width]) img->values;
 
   for(size_t height=0; height < img->height; height++)
   {
