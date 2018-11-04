@@ -22,7 +22,7 @@ void Image_destroy (Image* img)
 
 void Image_fill (Image* img)
 {
-  int (*array_2D)[img->width] = (int(*)[img->width]) img->values;
+  int (*array_2D)[img->width] = (int(*)[img->width]) img->pixels;
 
   for(size_t height=0; height < img->height; height++)
   {
@@ -35,7 +35,7 @@ void Image_fill (Image* img)
 
 void Image_print (const Image* img)
 {
-  int (*array_2D)[img->width] = (int(*)[img->width]) img->values;
+  int (*array_2D)[img->width] = (int(*)[img->width]) img->pixels;
 
   for(size_t height=0; height < img->height; height++)
   {
