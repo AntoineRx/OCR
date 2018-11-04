@@ -41,7 +41,7 @@ void Image_print (const Image* img)
   {
     for(size_t width=0; width < img->width; width++)
     {
-      printf("%.5f ", array_2D[height][width]); 
+      printf("%d ", array_2D[height][width]); 
     }
     printf("\n");
   }
