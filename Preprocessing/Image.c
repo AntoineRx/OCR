@@ -1,8 +1,8 @@
-struct Image {
+typedef struct {
 	size_t width;
 	size_t height;
 	int pixels[][];
-};
+} Image;
 
 
 Image* Image_create (size_t height, size_t width)
