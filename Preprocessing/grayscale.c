@@ -2,66 +2,9 @@
 #include "SDL/SDL.h"
 #include "SDL/SDL_image.h"
 #include "pixel_operations.h"
+#include "image.h"
 #include <stdlib.h>
 #include <math.h>
-
-
-typedef struct {
-	size_t width;
-	size_t height;
-	int pixels[];
-} Image;
-
-
-Image* Image_create (size_t height, size_t width)
-{
-  // using calloc since it conveniently fills everything with zeroes
-  Image* img = calloc(1, sizeof *img + sizeof(int[height][width]) );
-  img->height = height;
-  img->width = width;
-  // ...
-  return img;
-}
-
-void Image_destroy (Image* img)
-{
-  free(img);
-}
-
-void Image_fill (Image* img, SDL_Surface* img_sdl)
-{
-  int (*array_2D)[img->width] = (int(*)[img->width]) img->pixels;
-
-  for(size_t height=0; height < img->height; height++)
-  {
-    for(size_t width=0; width < img->width; width++)
-    {
-	Uint32 pixel = get_pixel(img_sdl, width, height);
-	Uint8 r, g, b;
-	SDL_GetRGB(pixel, img_sdl->format, &r, &g, &b);
-	array_2D[height][width] = r == 0 ? 1 : 0;
-	
-    }
-  }
-}
-
-void Image_print (const Image* img)
-{
-  int (*array_2D)[img->width] = (int(*)[img->width]) img->pixels;
-
-  for(size_t height=0; height < img->height; height++)
-  {
-    for(size_t width=0; width < img->width; width++)
-    {
-      printf("%d ", array_2D[height][width]); 
-    }
-    printf("\n");
-  }
-}
-
-
-
-
 
 void init_sdl()
 {
@@ -192,18 +135,17 @@ void img_to_blackandwhite(int p)
 	SDL_FreeSurface(image_surface);
 	SDL_FreeSurface(screen_surface);
 	SDL_SaveBMP(screen_surface, "blackandwhite.out");
+	image_surface = load_image("blackandwhite.out");
+	Image* Image2 = Image_create(height, width);
+  	Image_fill(Image2, image_surface); 
+  	Image_print(Image2);
+	Image_destroy(Image2);
 }
 
 int main()
 {
 	img_to_blackandwhite(50);
-	SDL_Surface* image_surface = load_image("blackandwhite.out");
-	int width = image_surface->w;
-	int height = image_surface->h;
-	Image* Image2 = Image_create(height, width);
-  	Image_fill(Image2, image_surface); 
-  	Image_print(Image2);
-	Image_destroy(Image2);
+	
 
 
        return 0;
